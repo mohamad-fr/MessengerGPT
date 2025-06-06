@@ -1,21 +1,19 @@
 import openai
 import requests
 from flask import Flask, request
+import os
 
 app = Flask(__name__)
 
-# 🔐 مفاتيح وتوكنات
+# مفاتيح
 VERIFY_TOKEN = "admwjtgp"
-PAGE_ACCESS_TOKEN = "EAAR6HpC3NZBcBOZBLJbxHkuZBuQ7gM51cJYnmIHNj4k4UrgOiZBW3wIIjJkNAIfmgDCE4h5Vf8x1Yg3S7uBkRaP1H5g3jiCKHADlvLP6LvyuNJryXdWUcicZA1ZCoHVr68jN3nBYMDlxyvHzWBcaKy4oRZCGVI8UZBxdmQvYe6qyOizWZCacMT8hDU1tHKWFLPxX7sndBqv7KUbZCL2OLfN50ZD"
-OPENAI_API_KEY = "sk-...MOwA"  # ← استبدله بمفتاحك الحقيقي
+PAGE_ACCESS_TOKEN = "EAAR6HpC3NZBcBO8ANm0zVyoKf7CleGuZBHeENQU5jn3WWYQ6fl0U1tCDa76Lf284iAgkEDnZBNnWz4HqM1dy5YF7hPVqkMHZCgZAprpQ4oc7oLFPSsxDCo8YWP3GZCB2d8pBVCsBtZAULRre2pyhv14Q6KLJMfJ2CPVYW6JAQy6UF6ZA9aErjFWGocSyqNZABdcH05HHJvayfuEoHH2xcRJxGuZA7c"
+OPENAI_API_KEY = "	
+sk-...MOwA"
 
-# إعداد OpenAI
 openai.api_key = OPENAI_API_KEY
-
-# API فيسبوك
 FB_API = f"https://graph.facebook.com/v16.0/me/messages?access_token={PAGE_ACCESS_TOKEN}"
 
-# ✅ تحقق من Webhook من فيسبوك
 @app.route('/webhook', methods=['GET', 'POST'])
 def webhook():
     if request.method == 'GET':
@@ -24,7 +22,6 @@ def webhook():
         challenge = request.args.get('hub.challenge')
 
         if mode == 'subscribe' and token == VERIFY_TOKEN:
-            print("✅ Webhook Verified")
             return challenge, 200
         else:
             return "❌ Verification failed", 403
@@ -40,17 +37,12 @@ def webhook():
 
                     if 'message' in messaging_event and 'text' in messaging_event['message']:
                         user_message = messaging_event['message']['text']
-                        print("📨 User:", user_message)
-
-                        # طلب إلى OpenAI
                         completion = openai.ChatCompletion.create(
                             model="gpt-3.5-turbo",
                             messages=[{"role": "user", "content": user_message}]
                         )
                         bot_response = completion['choices'][0]['message']['content']
-                        print("🤖 Bot:", bot_response)
 
-                        # إرسال الرد
                         response_data = {
                             'recipient': {'id': sender_id},
                             'message': {'text': bot_response}
@@ -62,13 +54,10 @@ def webhook():
 
         return "EVENT_RECEIVED", 200
 
-# ✅ اختبار بسيط
 @app.route('/', methods=['GET'])
 def home():
     return "✅ Bot is running.", 200
 
-# ✅ تشغيل التطبيق
 if __name__ == '__main__':
-    import os
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)

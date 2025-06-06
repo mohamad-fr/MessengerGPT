@@ -2,7 +2,7 @@ import os
 import openai
 from flask import Flask, request
 
-app = Flask(_name_)
+app = Flask(__name__)
 
 # Tokens from environment or default fallback
 VERIFY_TOKEN = os.environ.get("VERIFY_TOKEN", "admwjtgp")

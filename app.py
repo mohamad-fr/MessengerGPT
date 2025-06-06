@@ -1,32 +1,38 @@
 import requests
-import os, signal
+import os
 from flask import Flask, request
 
 app = Flask(__name__)
 
-# توكين التحقق (لازم يكون نفسو يلي بتحطو بفيسبوك)
-VERIFY_TOKEN = 'admwtjgp'
+VERIFY_TOKEN = os.environ.get("VERIFY_TOKEN", "admwjtgp")  # نفس التوكن اللي في الصورة
 
-@app.route('/')
-def hello():
-    return "Hello, world!"
+@app.route('/', methods=['GET'])
+def home():
+    return "Webhook is live 🟢"
 
-# المسار يلي فيسبوك رح يجرب يتحقق منه
-@app.route('/webhook', methods=['https://messengergpt-5l6u.onrender.com'])
-def verify_webhook():
-    mode = request.args.get("hub.mode")
-    token = request.args.get("hub.verify_token")
-    challenge = request.args.get("hub.challenge")
+@app.route('/webhook', methods=['GET', 'POST'])
+def webhook():
+    if request.method == 'GET':
+        # تحقق من التوكن عند إعداد Webhook من Facebook
+        mode = request.args.get("hub.mode")
+        token = request.args.get("hub.verify_token")
+        challenge = request.args.get("hub.challenge")
 
-    if mode == "subscribe" and token == VERIFY_TOKEN:
-        print("✅ Facebook webhook verified")
-        return challenge, 200
-    else:
-        return "Verification failed", 403
+        if mode == "subscribe" and token == VERIFY_TOKEN:
+            print("WEBHOOK_VERIFIED ✅")
+            return challenge, 200
+        else:
+            return "Verification token mismatch", 403
 
-if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000)
+    elif request.method == 'POST':
+        # استقبال بيانات من Facebook
+        data = request.get_json()
+        print("Received webhook data:", data)
+        return "EVENT_RECEIVED", 200
 
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
 #This is API key for OpenAI
 openai.api_key = os.environ.get("OPENAI_API_KEY")
 # This is page access token that you get from facebook developer console.

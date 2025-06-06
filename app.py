@@ -8,8 +8,8 @@ app = Flask(__name__)
 # مفاتيح
 VERIFY_TOKEN = "admwjtgp"
 PAGE_ACCESS_TOKEN = "EAAR6HpC3NZBcBO8ANm0zVyoKf7CleGuZBHeENQU5jn3WWYQ6fl0U1tCDa76Lf284iAgkEDnZBNnWz4HqM1dy5YF7hPVqkMHZCgZAprpQ4oc7oLFPSsxDCo8YWP3GZCB2d8pBVCsBtZAULRre2pyhv14Q6KLJMfJ2CPVYW6JAQy6UF6ZA9aErjFWGocSyqNZABdcH05HHJvayfuEoHH2xcRJxGuZA7c"
-OPENAI_API_KEY = "	
-sk-...MOwA"
+OPENAI_API_KEY = "sk-...MOwA"	
+
 
 openai.api_key = OPENAI_API_KEY
 FB_API = f"https://graph.facebook.com/v16.0/me/messages?access_token={PAGE_ACCESS_TOKEN}"

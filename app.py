@@ -1,27 +1,25 @@
 import os
 import openai
+import requests
 from flask import Flask, request
 
 app = Flask(__name__)
 
-# Tokens from environment or default fallback
-VERIFY_TOKEN = os.environ.get("VERIFY_TOKEN", "admwjtgp")
-PAGE_ACCESS_TOKEN = os.environ.get("PAGE_TOKEN", "EAAR6HpC3NZBcBOZBLJbxHkuZBuQ7gM51cJYnmIHNj4k4UrgOiZBW3wIIjJkNAIfmgDCE4h5Vf8x1Yg3S7uBkRaP1H5g3jiCKHADlvLP6LvyuNJryXdWUcicZA1ZCoHVr68jN3nBYMDlxyvHzWBcaKy4oRZCGVI8UZBxdmQvYe6qyOizWZCacMT8hDU1tHKWFLPxX7sndBqv7KUbZCL2OLfN50ZD")
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "	
-sk-...MOwA	
-")
+# ✅ ثابتات من التوكنات اللي أعطيتني ياها مباشرة
+VERIFY_TOKEN = "admwjtgp"
+PAGE_ACCESS_TOKEN = "EAAR6HpC3NZBcBOZBLJbxHkuZBuQ7gM51cJYnmIHNj4k4UrgOiZBW3wIIjJkNAIfmgDCE4h5Vf8x1Yg3S7uBkRaP1H5g3jiCKHADlvLP6LvyuNJryXdWUcicZA1ZCoHVr68jN3nBYMDlxyvHzWBcaKy4oRZCGVI8UZBxdmQvYe6qyOizWZCacMT8hDU1tHKWFLPxX7sndBqv7KUbZCL2OLfN50ZD"
+OPENAI_API_KEY = "sk-***MOwA"  # حط المفتاح الكامل الحقيقي إذا بتجرب
 
-# Configure OpenAI
+# ✅ إعدادات OpenAI
 openai.api_key = OPENAI_API_KEY
 
-# Facebook Messages API endpoint
+# ✅ رابط Facebook API
 FB_API = f"https://graph.facebook.com/v16.0/me/messages?access_token={PAGE_ACCESS_TOKEN}"
 
-# ✅ Webhook Verification & Event Handler
+# ✅ Webhook
 @app.route('/webhook', methods=['GET', 'POST'])
 def webhook():
     if request.method == 'GET':
-        # Webhook verification
         mode = request.args.get('hub.mode')
         token = request.args.get('hub.verify_token')
         challenge = request.args.get('hub.challenge')
@@ -33,7 +31,6 @@ def webhook():
             return "❌ Verification failed", 403
 
     elif request.method == 'POST':
-        # Facebook sends events here
         data = request.get_json()
         print("📩 Webhook Event Received:", data)
 
@@ -45,7 +42,6 @@ def webhook():
                 if user_message:
                     print("📨 User Message:", user_message)
 
-                    # Send to ChatGPT
                     completion = openai.ChatCompletion.create(
                         model="gpt-3.5-turbo",
                         messages=[{"role": "user", "content": user_message}]
@@ -53,7 +49,6 @@ def webhook():
                     bot_response = completion['choices'][0]['message']['content']
                     print("🤖 ChatGPT:", bot_response)
 
-                    # Send response to Facebook Messenger
                     response_data = {
                         'recipient': {'id': sender_id},
                         'message': {'text': bot_response}
@@ -65,13 +60,12 @@ def webhook():
         
         return "EVENT_RECEIVED", 200
 
-# ✅ Simple default route (optional)
+# ✅ Route للاختبار
 @app.route('/', methods=['GET'])
 def home():
     return "👋 Flask server is running.", 200
 
-# ✅ Run server
-if _name_ == '_main_':
+# ✅ تشغيل التطبيق
+if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
-

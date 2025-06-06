@@ -10,7 +10,6 @@ VERIFY_TOKEN = "admwjtgp"
 PAGE_ACCESS_TOKEN = "EAAR6HpC3NZBcBO8ANm0zVyoKf7CleGuZBHeENQU5jn3WWYQ6fl0U1tCDa76Lf284iAgkEDnZBNnWz4HqM1dy5YF7hPVqkMHZCgZAprpQ4oc7oLFPSsxDCo8YWP3GZCB2d8pBVCsBtZAULRre2pyhv14Q6KLJMfJ2CPVYW6JAQy6UF6ZA9aErjFWGocSyqNZABdcH05HHJvayfuEoHH2xcRJxGuZA7c"
 OPENAI_API_KEY = "sk-...MOwA"	
 
-
 openai.api_key = OPENAI_API_KEY
 FB_API = f"https://graph.facebook.com/v16.0/me/messages?access_token={PAGE_ACCESS_TOKEN}"
 
@@ -20,7 +19,9 @@ def webhook():
         mode = request.args.get('hub.mode')
         token = request.args.get('hub.verify_token')
         challenge = request.args.get('hub.challenge')
-print(f"📥 Webhook GET Request → mode: {mode}, token: {token}, challenge: {challenge}")
+
+        print(f"📥 Webhook GET Request → mode: {mode}, token: {token}, challenge: {challenge}")
+
         if mode == 'subscribe' and token == VERIFY_TOKEN:
             return challenge, 200
         else:

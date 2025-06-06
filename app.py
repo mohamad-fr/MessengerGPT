@@ -25,7 +25,7 @@ def webhook():
             return challenge, 200
         else:
             return "❌ Verification failed", 403
-
+print(f"📥 Webhook GET Request → mode: {mode}, token: {token}, challenge: {challenge}")
     elif request.method == 'POST':
         data = request.get_json()
         print("📩 Webhook Event Received:", data)

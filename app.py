@@ -1,8 +1,31 @@
 import requests
 import os, signal
 from flask import Flask, request
-import openai
+
 app = Flask(__name__)
+
+# توكين التحقق (لازم يكون نفسو يلي بتحطو بفيسبوك)
+VERIFY_TOKEN = 'admwtjgp'
+
+@app.route('/')
+def hello():
+    return "Hello, world!"
+
+# المسار يلي فيسبوك رح يجرب يتحقق منه
+@app.route('/webhook', methods=['https://messengergpt-5l6u.onrender.com'])
+def verify_webhook():
+    mode = request.args.get("hub.mode")
+    token = request.args.get("hub.verify_token")
+    challenge = request.args.get("hub.challenge")
+
+    if mode == "subscribe" and token == VERIFY_TOKEN:
+        print("✅ Facebook webhook verified")
+        return challenge, 200
+    else:
+        return "Verification failed", 403
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=5000)
 
 #This is API key for OpenAI
 openai.api_key = os.environ.get("OPENAI_API_KEY")

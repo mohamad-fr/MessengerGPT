@@ -1,73 +1,76 @@
-import requests
+s
 import os
+import openai
 from flask import Flask, request
 
-app = Flask(__name__)
+app = Flask(_name_)
 
-VERIFY_TOKEN = os.environ.get("VERIFY_TOKEN", "admwjtgp")  # نفس التوكن اللي في الصورة
+# Tokens from environment or default fallback
+VERIFY_TOKEN = os.environ.get("VERIFY_TOKEN", "admwjtgp")
+PAGE_ACCESS_TOKEN = os.environ.get("PAGE_TOKEN", "your_page_token_here")
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "your_openai_key_here")
+
+# Configure OpenAI
+openai.api_key = OPENAI_API_KEY
+
+# Facebook Messages API endpoint
+FB_API = f"https://graph.facebook.com/v16.0/me/messages?access_token={PAGE_ACCESS_TOKEN}"
+
+# ✅ Webhook Verification & Event Handler
 @app.route('/webhook', methods=['GET', 'POST'])
 def webhook():
     if request.method == 'GET':
+        # Webhook verification
         mode = request.args.get('hub.mode')
         token = request.args.get('hub.verify_token')
         challenge = request.args.get('hub.challenge')
 
-        if mode and token:
-            if mode == 'subscribe' and token == VERIFY_TOKEN:
-                print("✅ Webhook Verified")
-                return challenge, 200
-            else:
-                return "❌ Verification failed", 403
+        if mode == 'subscribe' and token == VERIFY_TOKEN:
+            print("✅ Webhook Verified")
+            return challenge, 200
+        else:
+            return "❌ Verification failed", 403
 
     elif request.method == 'POST':
+        # Facebook sends events here
         data = request.get_json()
-        print("📩 Event received:")
-        print(data)
+        print("📩 Webhook Event Received:", data)
+
+        try:
+            messaging = data['entry'][0]['messaging'][0]
+            sender_id = messaging['sender']['id']
+            if 'message' in messaging:
+                user_message = messaging['message'].get('text')
+                if user_message:
+                    print("📨 User Message:", user_message)
+
+                    # Send to ChatGPT
+                    completion = openai.ChatCompletion.create(
+                        model="gpt-3.5-turbo",
+                        messages=[{"role": "user", "content": user_message}]
+                    )
+                    bot_response = completion['choices'][0]['message']['content']
+                    print("🤖 ChatGPT:", bot_response)
+
+                    # Send response to Facebook Messenger
+                    response_data = {
+                        'recipient': {'id': sender_id},
+                        'message': {'text': bot_response}
+                    }
+                    requests.post(FB_API, json=response_data)
+
+        except Exception as e:
+            print("❌ Error:", e)
+        
         return "EVENT_RECEIVED", 200
 
-
-if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
-#This is API key for OpenAI
-openai.api_key = os.environ.get("OPENAI_API_KEY")
-# This is page access token that you get from facebook developer console.
-PAGE_ACCESS_TOKEN = os.environ.get("PAGE_TOKEN")
-# This is API key for facebook messenger.
-API="https://graph.facebook.com/v16.0/me/messages?access_token="+PAGE_ACCESS_TOKEN
-
+# ✅ Simple default route (optional)
 @app.route('/', methods=['GET'])
-def verify():
-    # Verify the webhook subscription with Facebook Messenger
-    if request.args.get("hub.mode") == "subscribe" and request.args.get("hub.challenge"):
-        if not request.args.get("hub.verify_token") == "pogiako":
-            return "Verification token missmatch", 403
-        return request.args['hub.challenge'], 200
-    return "Hello world", 200
+def home():
+    return "👋 Flask server is running.", 200
 
-@app.route("/", methods=['POST'])
-def fbwebhook():
-    data = request.get_json()
-    try:
-        if data['entry'][0]['messaging'][0]['sender']['id']:
-            message = data['entry'][0]['messaging'][0]['message']
-            sender_id = data['entry'][0]['messaging'][0]['sender']['id']
-            chat_gpt_input=message['text']
-            print(chat_gpt_input)
-            completion = openai.ChatCompletion.create(
-                            model="gpt-3.5-turbo",
-                            messages=[{"role": "user", "content": chat_gpt_input}])          
-            chatbot_res = completion['choices'][0]['message']['content']
-            print("ChatGPT Response=>",chatbot_res)
-            response = {
-                'recipient': {'id': sender_id},
-                'message': {'text': chatbot_res}
-            }
-            requests.post(API, json=response)
-    except Exception as e:
-        print(e)
-        pass
-    return '200 OK HTTPS.'
-  # Run the Flask app
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=False, port=5000)
+# ✅ Run server
+if _name_ == '_main_':
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
+

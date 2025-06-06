@@ -3,3 +3,4 @@ openai
 pyngrok
 requests
 python-dotenv
+gunicorn

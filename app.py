@@ -6,8 +6,9 @@ app = Flask(_name_)
 
 # Tokens from environment or default fallback
 VERIFY_TOKEN = os.environ.get("VERIFY_TOKEN", "admwjtgp")
-PAGE_ACCESS_TOKEN = os.environ.get("PAGE_TOKEN", "your_page_token_here")
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "your_openai_key_here")
+PAGE_ACCESS_TOKEN = os.environ.get("PAGE_TOKEN", "EAAR6HpC3NZBcBOZBLJbxHkuZBuQ7gM51cJYnmIHNj4k4UrgOiZBW3wIIjJkNAIfmgDCE4h5Vf8x1Yg3S7uBkRaP1H5g3jiCKHADlvLP6LvyuNJryXdWUcicZA1ZCoHVr68jN3nBYMDlxyvHzWBcaKy4oRZCGVI8UZBxdmQvYe6qyOizWZCacMT8hDU1tHKWFLPxX7sndBqv7KUbZCL2OLfN50ZD")
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "	
+sk-...MOwA")
 
 # Configure OpenAI
 openai.api_key = OPENAI_API_KEY

@@ -5,30 +5,26 @@ from flask import Flask, request
 app = Flask(__name__)
 
 VERIFY_TOKEN = os.environ.get("VERIFY_TOKEN", "admwjtgp")  # نفس التوكن اللي في الصورة
-
-@app.route('/', methods=['GET'])
-def home():
-    return "Webhook is live 🟢"
-
 @app.route('/webhook', methods=['GET', 'POST'])
 def webhook():
     if request.method == 'GET':
-        # تحقق من التوكن عند إعداد Webhook من Facebook
-        mode = request.args.get("hub.mode")
-        token = request.args.get("hub.verify_token")
-        challenge = request.args.get("hub.challenge")
+        mode = request.args.get('hub.mode')
+        token = request.args.get('hub.verify_token')
+        challenge = request.args.get('hub.challenge')
 
-        if mode == "subscribe" and token == VERIFY_TOKEN:
-            print("WEBHOOK_VERIFIED ✅")
-            return challenge, 200
-        else:
-            return "Verification token mismatch", 403
+        if mode and token:
+            if mode == 'subscribe' and token == VERIFY_TOKEN:
+                print("✅ Webhook Verified")
+                return challenge, 200
+            else:
+                return "❌ Verification failed", 403
 
     elif request.method == 'POST':
-        # استقبال بيانات من Facebook
         data = request.get_json()
-        print("Received webhook data:", data)
+        print("📩 Event received:")
+        print(data)
         return "EVENT_RECEIVED", 200
+
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
